@@ -27,8 +27,9 @@
 // Follow up: Your algorithm's time complexity must be better than O(n log n),
 // where n is the array's size.
 
-#include <bits/stdc++.h>
-#include <vector.h>
+#include <queue>
+#include <unordered_map>
+#include <vector>
 using namespace std;
 
 class Solution {
