@@ -54,19 +54,28 @@ public:
 
     unordered_map<char, int> char_count;
     int max_length = 1;
-    int max_char_count = 0;
+    int max_char_repeat_count = 0;
 
     while (r < s.length()) {
       char_count[s[r]]++;
-      max_char_count = max(max_char_count, char_count[s[r]]);
-      if ((r - l + 1 - max_char_count) > k) {
+      // we can maintain a global max instead of finding the
+      // max_char_repeat_count per substring because the max length of the
+      // substring that satisfies the conditions in the question is
+      // max_char_repeat_count + k so, if a smaller max_char_repeat_count is
+      // encountered, we can know for sure that such a substring will not result
+      // in the best answer
+      max_char_repeat_count = max(max_char_repeat_count, char_count[s[r]]);
+      if ((length(l, r) - max_char_repeat_count) > k) {
         char_count[s[l++]]--;
       } else {
-        max_length = max(max_length, r - l + 1);
+        max_length = max(max_length, length(l, r));
       }
       r++;
     }
 
     return max_length;
   }
+
+private:
+  inline int length(int l, int r) { return r - l + 1; }
 };
