@@ -101,7 +101,7 @@ public:
     ListNode *ret = head;
     bool take_from_end = false;
 
-    while (first_half) {
+    while (first_half || second_half) {
       ListNode *temp;
 
       if (take_from_end) {
