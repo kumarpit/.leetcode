@@ -36,14 +36,9 @@
 
 import argparse
 from parking_lot import ParkingLot
-from parking_slot import ParkingSlot
 from vehicle import Vehicle
 from parking_ticket import ParkingTicket
-from enum import Enum, auto 
 from typing import Optional
-
-class State(Enum):
-    PARKING_LOT = auto()
 
 # Command definitions
 
@@ -63,14 +58,14 @@ def leave(parking_lot, args):
 def status(parking_lot, _):
     parking_lot.print_status()
 
-def registration_numbers_for_cars_with_color(parking_lot, args):
-    parking_lot.get_registration_numbers_for_cars_with_color(args.color)
+def registration_numbers_for_vehicles_with_color(parking_lot, args):
+    print(parking_lot.get_registration_numbers_for_vehicles_with_color(args.color))
 
-def slot_numbers_for_cars_with_color(parking_lot, args):
-    print("not implemented")
+def slot_numbers_for_vehicles_with_color(parking_lot, args):
+    print(parking_lot.get_slot_numbers_for_vehicles_with_color(args.color))
 
-def slot_number_for_car_with_registration(parking_lot, args):
-    print("not implemented")
+def slot_number_for_vehicle_with_registration(parking_lot, args):
+    print(parking_lot.get_slot_number_for_vehicle_with_registration(args.registration))
 
 # Parking Lot REPL
 
@@ -93,9 +88,17 @@ def setup_parser():
     status_parser = subparsers.add_parser('status', help="Prints information on all parked vehicles in this parking lot")
     status_parser.set_defaults(func=status)
     
-    registration_numbers_for_cars_with_color_parser = subparsers.add_parser('registration_numbers_for_cars_with_color', help="Gets the registration numbers of all parked colors that have the given color")
-    registration_numbers_for_cars_with_color_parser.set_defaults(func=registration_numbers_for_cars_with_color)
-    registration_numbers_for_cars_with_color_parser.add_argument('color', type=str)
+    registration_numbers_for_vehicles_with_color_parser = subparsers.add_parser('registration_numbers_for_vehicles_with_color', help="Gets the registration numbers of all parked colors that have the given color")
+    registration_numbers_for_vehicles_with_color_parser.set_defaults(func=registration_numbers_for_vehicles_with_color)
+    registration_numbers_for_vehicles_with_color_parser.add_argument('color', type=str)
+    
+    slot_numbers_for_vehicles_with_color_parser = subparsers.add_parser('slot_numbers_for_vehicles_with_color', help="Gets the slot numbers of all parked colors that have the given color")
+    slot_numbers_for_vehicles_with_color_parser.set_defaults(func=slot_numbers_for_vehicles_with_color)
+    slot_numbers_for_vehicles_with_color_parser.add_argument('color', type=str)
+    
+    slot_number_for_vehicles_with_registration_parser = subparsers.add_parser('slot_number_for_vehicle_with_registration', help="Gets the slot number for the vehicle with the given registration")
+    slot_number_for_vehicles_with_registration_parser.set_defaults(func=slot_number_for_vehicle_with_registration)
+    slot_number_for_vehicles_with_registration_parser.add_argument('registration', type=str)
     
     return parser
 

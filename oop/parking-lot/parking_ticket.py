@@ -1,7 +1,8 @@
 from vehicle import Vehicle
 from parking_slot import ParkingSlot
+from dataclasses import dataclass
 
+@dataclass
 class ParkingTicket:
-    def __init__(self, vehicle: Vehicle, slot: ParkingSlot):
-        self.vehicle = vehicle
-        self.slot = slot
+    vehicle: Vehicle
+    slot: ParkingSlot

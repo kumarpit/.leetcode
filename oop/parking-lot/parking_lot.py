@@ -1,4 +1,3 @@
-from ast import Str
 from parking_slot import ParkingSlot
 from vehicle import Vehicle
 from parking_ticket import ParkingTicket
@@ -31,10 +30,22 @@ class ParkingLot:
                 assert slot.occupant is not None
                 print(str(slot.index) + H_SPACER(4) + slot.occupant.registration + H_SPACER(4) + slot.occupant.color)
 
-    def get_registration_numbers_for_cars_with_color(self, color):
-        pred: Callable[[ParkingSlot], bool] = lambda slot : cast(Vehicle, slot.occupant).color is color
+    def get_registration_numbers_for_vehicles_with_color(self, color):
+        pred: Callable[[ParkingSlot], bool] = lambda slot : cast(Vehicle, slot.occupant).color == color
         extract: Callable[[ParkingSlot], str] = lambda slot : cast(Vehicle, slot.occupant).registration
         return self.__filter_parked_vehicles_and_get(pred, extract)
+
+    def get_slot_numbers_for_vehicles_with_color(self, color):
+        pred: Callable[[ParkingSlot], bool] = lambda slot : cast(Vehicle, slot.occupant).color == color
+        extract: Callable[[ParkingSlot], int] = lambda slot : slot.index
+        return self.__filter_parked_vehicles_and_get(pred, extract)
+
+    def get_slot_number_for_vehicle_with_registration(self, registration: str) -> Optional[int]:
+        for slot in self.slots:
+            if not slot.is_empty:
+                if cast(Vehicle, slot.occupant).registration == registration:
+                    return slot.index
+        return None
 
     def __filter_parked_vehicles_and_get(self, pred: Callable[[ParkingSlot], bool], extract):
         result = []
