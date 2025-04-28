@@ -1,4 +1,6 @@
+from dataclasses import dataclass
+
+@dataclass
 class Vehicle:
-    def __init__(self, registration: str, color: str):
-        self.registration = registration
-        self.color = color
+    registration: str
+    color: str
