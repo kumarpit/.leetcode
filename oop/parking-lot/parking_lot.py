@@ -28,7 +28,7 @@ class ParkingLot:
         for slot in self.slots:
             if not slot.is_empty:
                 assert slot.occupant is not None
-                print(str(slot.index) + H_SPACER(4) + slot.occupant.registration + H_SPACER(4) + slot.occupant.color)
+                print(str(slot.index) + H_SPACER(15) + slot.occupant.registration + H_SPACER(15) + slot.occupant.color)
 
     def get_registration_numbers_for_vehicles_with_color(self, color):
         pred: Callable[[ParkingSlot], bool] = lambda slot : cast(Vehicle, slot.occupant).color == color

@@ -1,0 +1,7 @@
+create_parking_lot 5
+park car_123 red
+park bike_123 red
+park bus_123 yellow
+status
+leave 1
+registration_numbers_for_vehicles_with_color red

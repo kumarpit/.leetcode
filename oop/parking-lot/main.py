@@ -102,34 +102,44 @@ def setup_parser():
     
     return parser
 
+parser = setup_parser()
+parking_lot: Optional[ParkingLot] = None
+
+def handle_command(line):
+    global parking_lot
+    try:
+        args = parser.parse_args(line.strip().split())
+        if args.command and args.command == 'create_parking_lot':
+            if parking_lot is not None:
+                raise Exception("Parking lot has already been initialized")
+            num_slots = args.num_slots
+            if num_slots <= 0:
+                raise ValueError("Number of slots must be a positive, non-zero integer")
+
+            parking_lot = ParkingLot(num_slots)
+            return
+
+        if args.command:
+            if parking_lot is None:
+                raise Exception("Parking lot has not been initialized")
+            args.func(parking_lot, args)
+            return 
+        else:
+            print("Missing command")
+    except Exception as e:
+        print(e)
+
 def repl():
-    parser = setup_parser()
-    parking_lot: Optional[ParkingLot] = None
     while True:
         user_input = input(">>> ")
         if user_input.strip().lower() == 'exit':
             break
-        try:
-            args = parser.parse_args(user_input.split())
-            if args.command and args.command == 'create_parking_lot':
-                if parking_lot is not None:
-                    raise Exception("Parking lot has already been initialized")
-                num_slots = args.num_slots
-                if num_slots <= 0:
-                    raise ValueError("Number of slots must be a positive, non-zero integer")
+        handle_command(user_input)
 
-                parking_lot = ParkingLot(num_slots)
-                continue;
+def read_commands_from_file(filename):
+    with open(filename, 'r') as file:
+        for line in file:
+            handle_command(line)
 
-            if args.command:
-                if parking_lot is None:
-                    raise Exception("Parking lot has not been initialized")
-                args.func(parking_lot, args)
-                continue;
-            
-            else:
-                print("Missing command")
-        except Exception as e:
-            print(e)
-
-repl()
+# repl()
+read_commands_from_file("commands.txt")
