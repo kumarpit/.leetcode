@@ -39,20 +39,16 @@ from parking_lot import ParkingLot
 from parking_slot import ParkingSlot
 from vehicle import Vehicle
 from parking_ticket import ParkingTicket
-from enum import Enum
-from typing import List
+from enum import Enum, auto 
+from typing import Optional
 
 class State(Enum):
-    PARKING_LOT = 1
+    PARKING_LOT = auto()
 
 # Command definitions
 
-def park(state, args):
-    if State.PARKING_LOT.name not in state:
-        raise Exception("Parking lot not initialized")
-
-    parking_lot: ParkingLot = state[State.PARKING_LOT.name]
-    parking_ticket: ParkingTicket | None = parking_lot.park(Vehicle(args.registration, args.color))
+def park(parking_lot, args):
+    parking_ticket: Optional[ParkingTicket] = parking_lot.park(Vehicle(args.registration, args.color))
     
     if parking_ticket is None:
         print("Sorry, parking lot is full")
@@ -60,40 +56,20 @@ def park(state, args):
 
     print(f"Allocated slot number: {parking_ticket.slot.index}")
 
-def create_parking_lot(state, args):
-    if State.PARKING_LOT.name in state:
-        raise Exception("Parking lot already initialized")
+def leave(parking_lot, args):
+    parking_lot.leave(args.index)
+    print(f"Slot number {args.index} is free")
 
-    num_slots = args.num_slots
-    if num_slots <= 0:
-        raise Exception("Number of slots must be a positive, non-zero integer")
+def status(parking_lot, _):
+    parking_lot.print_status()
 
-    state[State.PARKING_LOT.name] = ParkingLot(num_slots)
+def registration_numbers_for_cars_with_color(parking_lot, args):
+    parking_lot.get_registration_numbers_for_cars_with_color(args.color)
 
-def leave(state, args):
-    if State.PARKING_LOT.name not in state:
-        raise Exception("Parking lot not initialized")
-
-    slots: List[ParkingSlot] = state[State.PARKING_LOT.name].slots
-    slot_to_free_index = args.index - 1
-    
-    if slot_to_free_index < 0 or slot_to_free_index >= len(slots):
-        raise Exception("Invalid slot index")
-
-    slot_to_free: ParkingSlot = slots[slot_to_free_index]
-    slot_to_free.vacate()
-    print(f"Slot number {slot_to_free.index} is free")
-
-def status(state, args):
+def slot_numbers_for_cars_with_color(parking_lot, args):
     print("not implemented")
 
-def registration_numbers_for_cars_with_color(state, args):
-    print("not implemented")
-
-def slot_numbers_for_cars_with_color(state, args):
-    print("not implemented")
-
-def slot_number_for_car_with_registration(state, args):
+def slot_number_for_car_with_registration(parking_lot, args):
     print("not implemented")
 
 # Parking Lot REPL
@@ -103,7 +79,6 @@ def setup_parser():
     subparsers = parser.add_subparsers(dest='command')
 
     create_parking_lot_parser = subparsers.add_parser('create_parking_lot', help="Initializes a parking lot with positive, non-zero slots")
-    create_parking_lot_parser.set_defaults(func=create_parking_lot)
     create_parking_lot_parser.add_argument('num_slots', type=int)
     
     park_parser = subparsers.add_parser('park', help='Parks a vehicle in the nearest slot')
@@ -112,22 +87,43 @@ def setup_parser():
     park_parser.add_argument('color', type=str)
 
     leave_parser = subparsers.add_parser('leave', help="Vacates the given parking slot")
-    leave_parser .set_defaults(func=leave)
-    leave_parser .add_argument('index', type=int)
+    leave_parser.set_defaults(func=leave)
+    leave_parser.add_argument('index', type=int)
+    
+    status_parser = subparsers.add_parser('status', help="Prints information on all parked vehicles in this parking lot")
+    status_parser.set_defaults(func=status)
+    
+    registration_numbers_for_cars_with_color_parser = subparsers.add_parser('registration_numbers_for_cars_with_color', help="Gets the registration numbers of all parked colors that have the given color")
+    registration_numbers_for_cars_with_color_parser.set_defaults(func=registration_numbers_for_cars_with_color)
+    registration_numbers_for_cars_with_color_parser.add_argument('color', type=str)
     
     return parser
 
 def repl():
     parser = setup_parser()
-    state = {}
+    parking_lot: Optional[ParkingLot] = None
     while True:
         user_input = input(">>> ")
         if user_input.strip().lower() == 'exit':
             break
         try:
             args = parser.parse_args(user_input.split())
+            if args.command and args.command == 'create_parking_lot':
+                if parking_lot is not None:
+                    raise Exception("Parking lot has already been initialized")
+                num_slots = args.num_slots
+                if num_slots <= 0:
+                    raise ValueError("Number of slots must be a positive, non-zero integer")
+
+                parking_lot = ParkingLot(num_slots)
+                continue;
+
             if args.command:
-                args.func(state, args)
+                if parking_lot is None:
+                    raise Exception("Parking lot has not been initialized")
+                args.func(parking_lot, args)
+                continue;
+            
             else:
                 print("Missing command")
         except Exception as e:

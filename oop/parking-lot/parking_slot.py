@@ -1,10 +1,11 @@
 from vehicle import Vehicle
+from typing import Optional
 
 class ParkingSlot:
     def __init__(self, index: int):
         self.index = index
         self.is_empty = True
-        self.occupant = None
+        self.occupant: Optional[Vehicle] = None
 
     def occupy(self, vehicle: Vehicle):
         if not self.is_empty:
