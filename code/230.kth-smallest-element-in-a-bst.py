@@ -46,16 +46,38 @@ class Solution(object):
         :type k: int
         :rtype: int
         """
-        n = 0
-        stack = []
-        curr = root
+        # iterative
+        # n = 0
+        # stack = []
+        # curr = root
+        #
+        # while curr or stack:
+        #     while curr:
+        #         stack.append(curr)
+        #         curr = curr.left
+        #     curr = stack.pop()
+        #     n += 1
+        #     if n == k:
+        #         return curr.val
+        #     curr = curr.right
+        
+        self.count = 0
+        self.k = k
+        self.result = None
+        self.__inorder_traversal(root)
+        return self.result
 
-        while curr or stack:
-            while curr:
-                stack.append(curr)
-                curr = curr.left
-            curr = stack.pop()
-            n += 1
-            if n == k:
-                return curr.val
-            curr = curr.right
+    def __inorder_traversal(self, node):
+        if not node or self.count >= self.k:
+            return
+
+        self.__inorder_traversal(node.left)
+
+        # visit node
+        self.count += 1
+        if self.count == self.k:
+            self.result = node.val
+            return
+
+        self.__inorder_traversal(node.right)
+
